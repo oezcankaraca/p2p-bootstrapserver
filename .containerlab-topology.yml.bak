@@ -1,0 +1,14 @@
+name: mein_netzwerk
+
+topology:
+  nodes:
+    bootstrapserver:
+      kind: linux
+      image: image-bootstrapserver
+    peer:
+      kind: linux
+      image: image-peer
+
+  links:
+    - endpoints: ["bootstrapserver:eth1", "peer:eth1"]
+

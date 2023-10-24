@@ -8,13 +8,9 @@ RUN apk update && \
 # Setzen des Arbeitsverzeichnisses im Container
 WORKDIR /app
 
-# Kopieren des Java-Programms und anderer notwendiger Dateien in das Arbeitsverzeichnis
-COPY . /app
+# Kopieren nur der BootstrapServer.java-Datei in das Arbeitsverzeichnis
+COPY BootstrapServer.java /app/
 
+# Kompilieren des Java-Programms
 RUN javac BootstrapServer.java
-
-# CMD-Anweisung beibehalten, um eine Shell zu starten, wenn kein spezifischer Befehl angegeben ist
-CMD ["/bin/sh"]
-CMD ["java", "BootstrapServer"]
-
 
