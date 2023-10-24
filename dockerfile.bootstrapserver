@@ -1,0 +1,20 @@
+# Starten mit dem Alpine-Image als Basis
+FROM alpine:latest
+
+# Aktualisieren und Installieren von notwendigen Paketen
+RUN apk update && \
+    apk add openjdk11 iproute2 iperf3 tcpdump netcat-openbsd iputils
+
+# Setzen des Arbeitsverzeichnisses im Container
+WORKDIR /app
+
+# Kopieren des Java-Programms und anderer notwendiger Dateien in das Arbeitsverzeichnis
+COPY . /app
+
+RUN javac BootstrapServer.java
+
+# CMD-Anweisung beibehalten, um eine Shell zu starten, wenn kein spezifischer Befehl angegeben ist
+CMD ["/bin/sh"]
+CMD ["java", "BootstrapServer"]
+
+
