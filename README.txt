@@ -10,13 +10,32 @@ sudo containerlab deploy -t containerlab-topology.yml
 4 - Inside of bootstrapserver container
 sudo docker exec -it clab-mein_netzwerk-bootstrapserver /bin/sh
 
-5 - Starting bootstrapserver Java
+5 - Inside of peer1 container
+sudo docker exec -it clab-mein_netzwerk-bootstrapserver /bin/sh
+
+6 - Inside of peer2 container
+sudo docker exec -it clab-mein_netzwerk-bootstrapserver /bin/sh
+
+7 - Starting BootstrapServer Java
 java BootstrapServer
 
-5 - Inside of peer container
-sudo docker exec -it clab-mein_netzwerk-peer /bin/sh
+8 - ls innerhalb peer2 Container ob die Datei schon da ist
 
-6 - Starting peer Java
+8 - Starting Testbed Java innerhalb Host zum Dateisenden
+java Testbed
+
+9 - Starting Peer Java innerhalb peer2 Container
 java Peer
+
+9 - Starting Peer Java innerhalb peer1 Container
+java Peer
+
+10 - Destroying containerlab
+sudo containerlab destroy -t containerlab-topology.yml --cleanup
+
+11 - Delete from Images if the class Peer and BootstrapServer change
+sudo docker images 
+sudo docker rmi 
+
 
 
