@@ -1,9 +1,32 @@
 import java.io.*;
 import java.net.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Map;
 
 public class Peer {
     public static void main(String[] args) {
+    
+        // Get the current working directory
+        String currentWorkingDir = System.getProperty("user.dir");
+        System.out.println("Current working directory: " + currentWorkingDir);
+
+        // Path to the file you want to check, relative to the current working directory
+        String relativeFilePath = "/mydocument.pdf";
+
+        // Combine the paths to get the full path to the file
+        String fullFilePath = currentWorkingDir + relativeFilePath;
+        System.out.println(fullFilePath);
+
+        // Check if the file exists
+        boolean hasFile = Files.exists(Paths.get(fullFilePath));
+
+        if (hasFile) {
+            System.out.println("The file exists in the current working directory.");
+        } else {
+            System.out.println("The file does not exist in the current working directory.");
+        }
+
         String serverAddress;
 
         try {
@@ -24,20 +47,15 @@ public class Peer {
              ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
              ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
 
-            String myAddress = "Peer_" + socket.getLocalPort(); // Eindeutige Adresse/ID für diesen Peer
+            String myAddress = "Peer_" + socket.getLocalPort(); // Unique address/ID for this peer
 
-            // Senden einer CONNECT-Nachricht an den Bootstrap-Server
-            String connectMessage = "CONNECT|" + myAddress + "|true";
+            // Sending a CONNECT message to the Bootstrap Server
+            String connectMessage = "CONNECT|" + myAddress + "|" + hasFile; // Assuming the peer doesn't have the file
             out.writeObject(connectMessage);
 
-            // Empfangen der Peer-Liste vom Bootstrap-Server
-            Object obj = in.readObject();
-            if (obj instanceof Map) {
-                Map<String, Boolean> peers = (Map<String, Boolean>) obj;
-                System.out.println("Map of peers: " + peers);
-            } else {
-                System.err.println("Received object is not a Map<String, Boolean>");
-            }
+            // Receiving the peer status map from the Bootstrap Server
+            Map<String, Boolean> peerStatusMap = (Map<String, Boolean>) in.readObject();
+            System.out.println("Map of peers: " + peerStatusMap);
 
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
