@@ -1,6 +1,6 @@
 import java.io.*;
 import java.net.*;
-import java.util.List;
+import java.util.Map;
 
 public class Peer {
     public static void main(String[] args) {
@@ -25,14 +25,18 @@ public class Peer {
              ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
 
             String myAddress = "Peer_" + socket.getLocalPort(); // Eindeutige Adresse/ID für diesen Peer
-            out.writeObject(myAddress);
 
+            // Senden einer CONNECT-Nachricht an den Bootstrap-Server
+            String connectMessage = "CONNECT|" + myAddress + "|true";
+            out.writeObject(connectMessage);
+
+            // Empfangen der Peer-Liste vom Bootstrap-Server
             Object obj = in.readObject();
-            if (obj instanceof List) {
-                List<String> peers = (List<String>) obj;
-                System.out.println("List of peers: " + peers);
+            if (obj instanceof Map) {
+                Map<String, Boolean> peers = (Map<String, Boolean>) obj;
+                System.out.println("Map of peers: " + peers);
             } else {
-                System.err.println("Received object is not a List<String>");
+                System.err.println("Received object is not a Map<String, Boolean>");
             }
 
         } catch (IOException | ClassNotFoundException e) {
