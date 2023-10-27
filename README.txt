@@ -20,6 +20,7 @@ sudo docker exec -it clab-mein_netzwerk-bootstrapserver /bin/sh
 java BootstrapServer
 
 8 - ls innerhalb peer2 Container ob die Datei schon da ist
+ls
 
 8 - Starting Testbed Java innerhalb Host zum Dateisenden
 java Testbed
