@@ -1,16 +1,17 @@
-# Starten mit dem Alpine-Image als Basis
+# Starting with the Alpine image as a base
 FROM alpine:latest
 
-# Aktualisieren und Installieren von notwendigen Paketen
+# Updating and installing necessary packages
+# apk is the package manager for Alpine
 RUN apk update && \
     apk add openjdk11 iproute2 iperf3 tcpdump netcat-openbsd iputils
 
-# Setzen des Arbeitsverzeichnisses im Container
+# Setting the working directory inside the container
 WORKDIR /app
 
-# Kopieren nur der BootstrapServer.java-Datei in das Arbeitsverzeichnis
+# Copying only the BootstrapServer.java file into the working directory
 COPY BootstrapServer.java /app/
 
-# Kompilieren des Java-Programms
+# Compiling the Java program
+# javac is the compiler for the Java programming language
 RUN javac BootstrapServer.java
-

@@ -1,17 +1,17 @@
-# Starten mit dem Alpine-Image als Basis
+# Starting with the Alpine image as a base
 FROM alpine:latest
 
-# Aktualisieren und Installieren von notwendigen Paketen
+# Updating and installing necessary packages
+# This includes Java 11, networking tools, and the Docker CLI
 RUN apk update && \
     apk add openjdk11 iproute2 iperf3 tcpdump netcat-openbsd iputils docker-cli
 
-# Setzen des Arbeitsverzeichnisses im Container
+# Setting the working directory inside the container
 WORKDIR /app
 
-# Kopieren nur der Peer.java-Datei in das Arbeitsverzeichnis
+# Copying only the Peer.java file into the working directory
 COPY Peer.java /app/
 
-# Kompilieren des Java-Programms
+# Compiling the Java program
+# javac is used to compile Java source files
 RUN javac Peer.java
-
-

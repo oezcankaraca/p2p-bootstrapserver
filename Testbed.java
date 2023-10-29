@@ -3,6 +3,15 @@ import java.security.*;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
+/**
+ * Testbed
+ * Author: [Özcan Karaca]
+ *
+ * This class provides a command-line interface to perform various file operations
+ * in a Docker container environment, such as copying files between host and container,
+ * and verifying file integrity through hash matching.
+ */
+
 public class Testbed {
     public static void main(String[] args) {
         final String DESTINATION_CONTAINER_DIR = "/app/";
