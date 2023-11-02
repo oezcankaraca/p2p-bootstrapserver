@@ -5,14 +5,39 @@ topology:
     bootstrapserver:
       kind: linux
       image: image-bootstrapserver
+      cmd: "java -cp /app BootstrapServer"
+
     peer1:
       kind: linux
       image: image-peer
+      cmd: "java -cp /app Peer"
+      exec:
+        - sleep 5
+
     peer2:
       kind: linux
       image: image-peer
+      cmd: "java -cp /app Peer"
+      exec:
+        - sleep 5
 
-#  links:
-#    - endpoints: ["bootstrapserver:eth1", "peer1:eth1"]
-#    - endpoints: ["bootstrapserver:eth2", "peer2:eth1"]
+    peer3:
+      kind: linux
+      image: image-peer
+      cmd: "java -cp /app Peer"
+      exec:
+        - sleep 5
+
+    peer4:
+      kind: linux
+      image: image-peer
+      cmd: "java -cp /app Peer"
+      exec:
+        - sleep 5
+
+  links:
+    - endpoints: ["bootstrapserver:eth1", "peer1:eth1"]
+    - endpoints: ["bootstrapserver:eth2", "peer2:eth1"]
+    - endpoints: ["bootstrapserver:eth3", "peer3:eth1"]
+    - endpoints: ["bootstrapserver:eth4", "peer4:eth1"]
 

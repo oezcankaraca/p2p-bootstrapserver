@@ -15,3 +15,4 @@ COPY Peer.java /app/
 # Compiling the Java program
 # javac is used to compile Java source files
 RUN javac Peer.java
+
