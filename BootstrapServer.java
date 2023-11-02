@@ -5,35 +5,53 @@ import java.util.*;
 public class BootstrapServer {
     // Eine Map, um die Dateistatusinformationen für jeden Peer zu speichern
     private static Map<String, Boolean> peerStatusMap = Collections.synchronizedMap(new HashMap<>());
+// Flagge, um zu überprüfen, ob der Server die erste Verbindung erhalten hat
+private static boolean firstConnectionReceived = false;
 
-    public static void main(String[] args) {
-        // Setze ein Timeout von 15 Sekunden (15000 Millisekunden)
-        int timeout = 15000;
+public static void main(String[] args) {
+    // Timeout nach der ersten Verbindung (15 Minuten = 900000 Millisekunden)
+    int timeoutAfterFirstConnection = 100000;
 
-        try {
-            System.out.println("Bootstrap Server started...");
+    // Initialer Timeout vor der ersten Verbindung
+    int initialTimeout = 120000;
 
-            try (ServerSocket serverSocket = new ServerSocket(8080)) {
-                serverSocket.setSoTimeout(timeout);  // Setze das Timeout für accept
-                while (true) {
-                    try {
-                        Socket clientSocket = serverSocket.accept();  // Warte auf eine Verbindung
-                        new ClientHandler(clientSocket).start();      // Verarbeite die Verbindung
-                    } catch (SocketTimeoutException e) {
-                        System.out.println("Keine Verbindung innerhalb von 15 Sekunden, Server wird beendet.");
-                        break;  // Beendet die while-Schleife und damit den Server
-                    } catch (IOException e) {
-                        System.out.println("Verbindungsfehler: " + e.getMessage());
+    try {
+        System.out.println("Bootstrap Server started...");
+
+        try (ServerSocket serverSocket = new ServerSocket(8080)) {
+            serverSocket.setSoTimeout(initialTimeout);  // Setze das anfängliche Timeout für accept
+
+            while (true) {
+                try {
+                    Socket clientSocket = serverSocket.accept();  // Warte auf eine Verbindung
+                    
+                    // Wenn es die erste Verbindung ist, starte den Timeout nach der ersten Verbindung
+                    if (!firstConnectionReceived) {
+                        System.out.println("Erste Verbindung erhalten, starte Timeout.");
+                        serverSocket.setSoTimeout(timeoutAfterFirstConnection);
+                        firstConnectionReceived = true;
                     }
+                    
+                    new ClientHandler(clientSocket).start();      // Verarbeite die Verbindung
+                } catch (SocketTimeoutException e) {
+                    if (firstConnectionReceived) {
+                        System.out.println("Keine weiteren Verbindungen nach der ersten Verbindung innerhalb von " + (timeoutAfterFirstConnection / 1000) + " Sekunden, Server wird beendet.");
+                    } else {
+                        System.out.println("Keine erste Verbindung innerhalb von " + (initialTimeout / 1000) + " Sekunden, Server wird beendet.");
+                    }
+                    break;  // Beendet die while-Schleife und damit den Server
+                } catch (IOException e) {
+                    System.out.println("Verbindungsfehler: " + e.getMessage());
                 }
-            } catch (IOException e) {
-                System.out.println("Konnte ServerSocket nicht öffnen: " + e.getMessage());
             }
-        } finally {
-            // Hier könnten Sie am Ende des Programms weitere Bereinigungen durchführen
-            System.out.println("Server wird heruntergefahren.");
+        } catch (IOException e) {
+            System.out.println("Konnte ServerSocket nicht öffnen: " + e.getMessage());
         }
+    } finally {
+        // Hier könnten Sie am Ende des Programms weitere Bereinigungen durchführen
+        System.out.println("Server wird heruntergefahren.");
     }
+}
 
     private static class ClientHandler extends Thread {
         private Socket socket;

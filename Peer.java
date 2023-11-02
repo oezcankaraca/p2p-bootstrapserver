@@ -4,6 +4,12 @@ import java.util.Map;
 
 public class Peer {
     public static void main(String[] args) {
+        try {
+            Thread.sleep(100000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         String serverAddress;
         int serverPort = 8080; // Port des Bootstrap-Servers
 
