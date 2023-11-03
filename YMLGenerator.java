@@ -13,6 +13,8 @@ public class YMLGenerator {
             fw.write("    bootstrapserver:\n");
             fw.write("      kind: linux\n");
             fw.write("      image: image-bootstrapserver\n");
+            fw.write("      binds:\n");
+            fw.write("        - /home/ozcankaraca/Desktop/p2p-bootstrapserver/mydocument.pdf:/app/mydocument.pdf\n");
             fw.write("      exec:\n");
             fw.write("        - sleep 5\n");
             fw.write("      cmd: \"java -cp /app BootstrapServer\"\n\n");
@@ -40,7 +42,7 @@ public class YMLGenerator {
     public static void main(String[] args) {
         YMLGenerator generator = new YMLGenerator();
         // Pass the number of peers you want in the topology
-        generator.generateTopologyFile(15); // Generates for 4 peers
-        System.out.println("\nYML topology file generated successfully for 15 peers.");
+        generator.generateTopologyFile(2); 
     }
 }
+

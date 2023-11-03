@@ -1,17 +1,12 @@
 import java.io.*;
 import java.net.*;
-import java.util.Map;
 
 public class Peer {
+    private static final int serverPort = 8080; // Port des Bootstrap-Servers
+    private static final String fileSavePath = "/app/received-document.pdf";
+
     public static void main(String[] args) {
-        try {
-            Thread.sleep(100000);
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
         String serverAddress;
-        int serverPort = 8080; // Port des Bootstrap-Servers
 
         try {
             InetAddress inetAddress = InetAddress.getByName("bootstrapserver");
@@ -23,11 +18,10 @@ public class Peer {
             return;
         }
 
-        // Bestimmen des Peer-Namens über eine Umgebungsvariable
         String myAddress = System.getenv("HOSTNAME");
         if (myAddress == null || myAddress.isEmpty()) {
             System.err.println("HOSTNAME Umgebungsvariable ist nicht gesetzt. Verwende lokale Portnummer als Peer-ID.");
-            return; // Hier könnten Sie entscheiden, ob Sie stattdessen eine andere ID verwenden oder das Programm beenden möchten.
+            return;
         }
 
         while (true) {
@@ -35,32 +29,38 @@ public class Peer {
                  ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
                  ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
 
-                // Senden einer CONNECT-Nachricht an den Bootstrap-Server mit dem Peer-Namen
-                String connectMessage = "CONNECT|" + myAddress + "|true";
+                String connectMessage = "CONNECT|" + myAddress;
                 out.writeObject(connectMessage);
 
-                // Empfangen der Peer-Liste vom Bootstrap-Server
-                Object obj = in.readObject();
-                if (obj instanceof Map) {
-                    Map<String, Boolean> peers = (Map<String, Boolean>) obj;
-                    System.out.println("Map of peers: " + peers);
-                } else {
-                    System.err.println("Received object is not a Map<String, Boolean>");
-                }
+                // Warten auf das File
+                receiveFileFromServer(socket);
 
                 break; // Verbindung erfolgreich, Schleife verlassen
 
             } catch (IOException e) {
                 System.err.println("Konnte keine Verbindung zum Bootstrap-Server herstellen. Warte 5 Sekunden, dann versuche es erneut.");
                 try {
-                    Thread.sleep(5000); // Warte 5 Sekunden, bevor ein neuer Versuch unternommen wird
+                    Thread.sleep(5000);
                 } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt(); // Setze das Interrupt-Flag des Threads wieder
+                    Thread.currentThread().interrupt();
                 }
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-                break;
             }
+        }
+    }
+
+    private static void receiveFileFromServer(Socket socket) {
+        try {
+            InputStream in = socket.getInputStream();
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+            try (FileOutputStream fileOut = new FileOutputStream(fileSavePath)) {
+                while ((bytesRead = in.read(buffer)) != -1) {
+                    fileOut.write(buffer, 0, bytesRead);
+                }
+            }
+            System.out.println("Datei wurde empfangen und gespeichert: " + fileSavePath);
+        } catch (IOException e) {
+            System.err.println("Fehler beim Empfangen der Datei: " + e.getMessage());
         }
     }
 }

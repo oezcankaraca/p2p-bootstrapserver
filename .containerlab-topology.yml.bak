@@ -5,128 +5,26 @@ topology:
     bootstrapserver:
       kind: linux
       image: image-bootstrapserver
+      binds:
+        - /home/ozcankaraca/Desktop/p2p-bootstrapserver/mydocument.pdf:/app/mydocument.pdf
       exec:
-        - sleep 5
+        - sleep 2
       cmd: "java -cp /app BootstrapServer"
 
     peer1:
       kind: linux
       image: image-peer
       exec:
-        - sleep 5
+        - sleep 2
       cmd: "java -cp /app Peer"
 
     peer2:
       kind: linux
       image: image-peer
       exec:
-        - sleep 5
-      cmd: "java -cp /app Peer"
-
-    peer3:
-      kind: linux
-      image: image-peer
-      exec:
-        - sleep 5
-      cmd: "java -cp /app Peer"
-
-    peer4:
-      kind: linux
-      image: image-peer
-      exec:
-        - sleep 5
-      cmd: "java -cp /app Peer"
-
-    peer5:
-      kind: linux
-      image: image-peer
-      exec:
-        - sleep 5
-      cmd: "java -cp /app Peer"
-
-    peer6:
-      kind: linux
-      image: image-peer
-      exec:
-        - sleep 5
-      cmd: "java -cp /app Peer"
-
-    peer7:
-      kind: linux
-      image: image-peer
-      exec:
-        - sleep 5
-      cmd: "java -cp /app Peer"
-
-    peer8:
-      kind: linux
-      image: image-peer
-      exec:
-        - sleep 5
-      cmd: "java -cp /app Peer"
-
-    peer9:
-      kind: linux
-      image: image-peer
-      exec:
-        - sleep 5
-      cmd: "java -cp /app Peer"
-
-    peer10:
-      kind: linux
-      image: image-peer
-      exec:
-        - sleep 5
-      cmd: "java -cp /app Peer"
-
-    peer11:
-      kind: linux
-      image: image-peer
-      exec:
-        - sleep 5
-      cmd: "java -cp /app Peer"
-
-    peer12:
-      kind: linux
-      image: image-peer
-      exec:
-        - sleep 5
-      cmd: "java -cp /app Peer"
-
-    peer13:
-      kind: linux
-      image: image-peer
-      exec:
-        - sleep 5
-      cmd: "java -cp /app Peer"
-
-    peer14:
-      kind: linux
-      image: image-peer
-      exec:
-        - sleep 5
-      cmd: "java -cp /app Peer"
-
-    peer15:
-      kind: linux
-      image: image-peer
-      exec:
-        - sleep 5
+        - sleep 2
       cmd: "java -cp /app Peer"
 
   links:
     - endpoints: ["bootstrapserver:eth1", "peer1:eth1"]
     - endpoints: ["bootstrapserver:eth2", "peer2:eth1"]
-    - endpoints: ["bootstrapserver:eth3", "peer3:eth1"]
-    - endpoints: ["bootstrapserver:eth4", "peer4:eth1"]
-    - endpoints: ["bootstrapserver:eth5", "peer5:eth1"]
-    - endpoints: ["bootstrapserver:eth6", "peer6:eth1"]
-    - endpoints: ["bootstrapserver:eth7", "peer7:eth1"]
-    - endpoints: ["bootstrapserver:eth8", "peer8:eth1"]
-    - endpoints: ["bootstrapserver:eth9", "peer9:eth1"]
-    - endpoints: ["bootstrapserver:eth10", "peer10:eth1"]
-    - endpoints: ["bootstrapserver:eth11", "peer11:eth1"]
-    - endpoints: ["bootstrapserver:eth12", "peer12:eth1"]
-    - endpoints: ["bootstrapserver:eth13", "peer13:eth1"]
-    - endpoints: ["bootstrapserver:eth14", "peer14:eth1"]
-    - endpoints: ["bootstrapserver:eth15", "peer15:eth1"]
