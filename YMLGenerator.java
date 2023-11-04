@@ -4,7 +4,7 @@ import java.io.IOException;
 public class YMLGenerator {
 
     private static final String CONTAINERLAB_TOPOLOGY_DIR = "/home/ozcankaraca/Desktop/p2p-bootstrapserver/containerlab-topology.yml";
-    
+
     public void generateTopologyFile(int numberOfPeers) {
         try (FileWriter fw = new FileWriter(CONTAINERLAB_TOPOLOGY_DIR)) {
             fw.write("name: mein_netzwerk\n\n");
@@ -40,6 +40,6 @@ public class YMLGenerator {
     public static void main(String[] args) {
         YMLGenerator generator = new YMLGenerator();
         // Pass the number of peers you want in the topology
-        generator.generateTopologyFile(30); 
+        generator.generateTopologyFile(200);
     }
 }

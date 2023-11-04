@@ -6,17 +6,8 @@ public class Peer {
     private static final String fileSavePath = "/app/received-document.pdf";
 
     public static void main(String[] args) {
-        String serverAddress;
-
-        try {
-            InetAddress inetAddress = InetAddress.getByName("bootstrapserver");
-            serverAddress = inetAddress.getHostAddress();
-            System.out.println("Die IP-Adresse des Bootstrap-Servers ist: " + serverAddress);
-        } catch (UnknownHostException e) {
-            System.err.println("Konnte die IP-Adresse des Bootstrap-Servers nicht abrufen.");
-            e.printStackTrace();
-            return;
-        }
+        String serverAddress = resolveBootstrapServerAddress();
+        if (serverAddress == null) return; // Wenn die Adresse nicht aufgelöst werden kann, beende das Programm.
 
         String myAddress = System.getenv("HOSTNAME");
         if (myAddress == null || myAddress.isEmpty()) {
@@ -43,9 +34,34 @@ public class Peer {
                     Thread.sleep(5000);
                 } catch (InterruptedException ie) {
                     Thread.currentThread().interrupt();
+                    return; // Wenn der Thread unterbrochen wird, beende das Programm
                 }
             }
         }
+    }
+
+    private static String resolveBootstrapServerAddress() {
+        String serverAddress;
+        int attempts = 0;
+        while (attempts < 5) { // Versuchen Sie es bis zu 5 Mal
+            try {
+                InetAddress inetAddress = InetAddress.getByName("bootstrapserver");
+                serverAddress = inetAddress.getHostAddress();
+                System.out.println("Die IP-Adresse des Bootstrap-Servers ist: " + serverAddress);
+                return serverAddress; // Adresse erfolgreich aufgelöst
+            } catch (UnknownHostException e) {
+                System.err.println("Warte auf den Bootstrap-Server, Versuch " + (attempts + 1));
+                attempts++;
+                try {
+                    Thread.sleep(10000); // 10 Sekunden warten
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    return null; // Wenn der Thread unterbrochen wird, beende das Programm
+                }
+            }
+        }
+        System.err.println("Konnte die IP-Adresse des Bootstrap-Servers nach mehreren Versuchen nicht abrufen.");
+        return null;
     }
 
     private static void receiveFileFromServer(Socket socket) {
