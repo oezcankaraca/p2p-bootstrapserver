@@ -9,109 +9,156 @@ public class BootstrapServer {
     private static boolean firstConnectionReceived = false;
 
     public static void main(String[] args) {
-        int timeoutAfterFirstConnection = 100000; // 100 Sekunden nach der ersten Verbindung
-        int initialTimeout = 120000; // 120 Sekunden bis zur ersten Verbindung
+        // Set a timeout for 100 seconds after the first connection is received.
+        int timeoutAfterFirstConnection = 100000;
+        // Set an initial timeout for 120 seconds to wait for the first connection.
+        int initialTimeout = 120000;
 
         try {
             System.out.println("Bootstrap Server started...");
+            // Create a server socket that listens on port 8080.
             try (ServerSocket serverSocket = new ServerSocket(8080)) {
+                // Set the initial timeout for accepting connections.
                 serverSocket.setSoTimeout(initialTimeout);
 
                 while (true) {
                     try {
+                        // Accept a client connection.
                         Socket clientSocket = serverSocket.accept();
+                        // If this is the first connection, set a new timeout and indicate that the first connection has been received.
                         if (!firstConnectionReceived) {
-                            System.out.println("Erste Verbindung erhalten, starte Timeout.");
+                            System.out.println("First connection received, starting timeout.");
                             serverSocket.setSoTimeout(timeoutAfterFirstConnection);
                             firstConnectionReceived = true;
                         }
+                        // Start a new thread to handle the client connection.
                         new ClientHandler(clientSocket).start();
                     } catch (SocketTimeoutException e) {
+                        // If the timeout occurs after the first connection, start sending the file to all peers.
                         if (firstConnectionReceived) {
-                            System.out.println("Timeout. Starte das Senden der Datei an alle Peers.");
+                            System.out.println("Starting to send the file to all peers.");
                             byte[] fileData = readFileAsBytes("/app/mydocument.pdf");
                             sendFileToAllPeers(fileData);
                             break;
                         } else {
-                            System.out.println("Keine erste Verbindung innerhalb des Timeouts, Server wird beendet.");
+                            // If no first connection is made within the initial timeout, shut down the server.
+                            System.out.println("No first connection within the timeout, shutting down the server.");
                             break;
                         }
                     } catch (IOException e) {
-                        System.out.println("Verbindungsfehler: " + e.getMessage());
+                        // Log a connection error.
+                        System.out.println("Connection error: " + e.getMessage());
                     }
                 }
             }
         } catch (IOException e) {
-            System.out.println("Konnte ServerSocket nicht öffnen: " + e.getMessage());
+            // Log an error if the server socket cannot be opened.
+            System.out.println("Could not open ServerSocket: " + e.getMessage());
         } finally {
-            System.out.println("Server wird heruntergefahren. Insgesamt verbundene Peers: " + peerSocketsMap.size());
+            // Shut down the server and close all peer sockets.
+            System.out.println("Server is shutting down. Total connected peers: " + peerSocketsMap.size());
+            // Close all sockets in the peerSocketsMap.
             peerSocketsMap.values().forEach(socket -> {
                 try {
                     socket.close();
                 } catch (IOException e) {
-                    // Ignoriere Fehler beim Schließen des Sockets
+                    // Ignore errors when closing the socket.
                 }
             });
         }
     }
 
+    // This helper method reads the file at the given filePath into a byte array.
     private static byte[] readFileAsBytes(String filePath) throws IOException {
+        // Use the Files class from NIO to read all bytes from the file into a byte array.
         return Files.readAllBytes(Paths.get(filePath));
     }
 
+    // This method sends the file data to all connected peers.
     private static void sendFileToAllPeers(byte[] fileData) {
+        // Iterate over all peer sockets using the peerSocketsMap.
         peerSocketsMap.forEach((peerId, socket) -> {
             try {
+                // Get the output stream of the socket to send data to the peer.
                 OutputStream out = socket.getOutputStream();
+                // Write the file data to the output stream.
                 out.write(fileData);
+                // Flush the stream to ensure all data is sent.
                 out.flush();
-                System.out.println("Dateiübertragung an " + peerId + " wurde erfolgreich durchgeführt.");
+                // Log a message indicating successful file transfer to the peer.
+                System.out.println("File transfer from Server to " + peerId + " was successful.");
             } catch (IOException e) {
-                System.err.println("Fehler beim Senden der Datei an Peer " + peerId + ": " + e.getMessage());
+                // Log an error message if there's an issue sending the file to the peer.
+                System.err.println("Error sending file to peer " + peerId + ": " + e.getMessage());
             } finally {
                 try {
+                    // Attempt to close the socket after the file transfer.
                     socket.close();
                 } catch (IOException e) {
-                    // Ignoriere Fehler beim Schließen des Sockets
+                    // Ignore errors that occur while closing the socket.
                 }
             }
         });
     }
 
+    /**
+     * The ClientHandler class extends Thread, allowing it to run in its own thread
+     * and handle client connections.
+     */
     private static class ClientHandler extends Thread {
         private Socket socket;
 
+        // Constructor that takes a socket connection to a client.
         public ClientHandler(Socket socket) {
             this.socket = socket;
         }
 
+        // The run method is called when the thread starts.
         public void run() {
             try {
+                // Set up the output stream to send data to the client.
                 ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+                // Set up the input stream to receive data from the client.
                 ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
 
+                // Read the message object from the client.
                 String message = (String) in.readObject();
+                // Print out the received message.
                 System.out.println("Message received: " + message);
 
+                // Extract the peer ID from the received message.
                 String peerId = extractPeerId(message);
+                // Store the client's socket in a map using the peer ID as the key.
                 peerSocketsMap.put(peerId, socket);
 
-                // Hier wird nicht geschlossen, um die Verbindung offen zu halten
-                // Der ClientHandler schließt Streams und Socket nicht,
-                // das wird später im Haupt-Thread getan, nachdem die Datei gesendet wurde.
+                /**
+                 * Streams and socket are not closed here to keep the connection open.
+                 * The ClientHandler does not close the streams and socket,
+                 * it will be done later in the main thread after the file has been sent.
+                 */
 
             } catch (IOException | ClassNotFoundException e) {
-                System.out.println("Fehler bei der Verarbeitung der Clientanforderung: " + e.getMessage());
+                // Print an error message if there's a problem processing the client request.
+                System.out.println("Error processing client request: " + e.getMessage());
             }
         }
     }
 
+    /**
+     * This method extracts the peer ID from a message string that is expected to be
+     * in the format "COMMAND|CONTAINERNAME".
+     */
     private static String extractPeerId(String message) {
+        // Split the message into parts using the pipe character as a delimiter.
         String[] parts = message.split("\\|");
+        // Check if the message contains at least two parts after splitting.
         if (parts.length >= 2) {
+            // Return the second part of the message, which is the peer ID.
             return parts[1];
         } else {
+            // If the message does not have two parts, return an empty string.
             return "";
         }
     }
+
 }

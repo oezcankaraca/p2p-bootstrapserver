@@ -86,6 +86,6 @@ public class YMLGenerator {
     public static void main(String[] args) {
         YMLGenerator generator = new YMLGenerator();
         // Pass the number of peers you want in the topology
-        generator.generateTopologyFile(100);
+        generator.generateTopologyFile(200);
     }
 }
