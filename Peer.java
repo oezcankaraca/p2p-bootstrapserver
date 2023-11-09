@@ -16,7 +16,7 @@ public class Peer {
         String myAddress = System.getenv("HOSTNAME");
         // If the 'HOSTNAME' variable is not set, print an error and exit.
         if (myAddress == null || myAddress.isEmpty()) {
-            System.err.println("HOSTNAME environment variable is not set. Using local port number as Peer-ID.");
+            System.err.println("HOSTNAME environment variable is not set.");
             return;
         }
 
@@ -96,9 +96,8 @@ public class Peer {
     // This method is used to receive a file from the server via a socket.
     private static void receiveFileFromServer(Socket socket) {
         try {
-
-            InputStream in = socket.getInputStream(); // Obtain the InputStream from the socket to read the data sent by
-                                                      // the server.
+            // Obtain the InputStream from the socket to read the data sent by the server.
+            InputStream in = socket.getInputStream();
             byte[] buffer = new byte[4096]; // A buffer to store blocks of data as they are received.
             int bytesRead; // Variable to keep track of the number of bytes read.
 

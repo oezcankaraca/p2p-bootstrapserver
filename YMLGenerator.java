@@ -2,9 +2,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 /**
- * This class is responsible for generating a YAML file to describe the topology of a network.
- * It is specifically designed for use with Containerlab to define a peer-to-peer network with
- * a bootstrap server and a dynamic number of peer nodes. Additionally, it includes configurations
+ * This class is responsible for generating a YAML file to describe the topology
+ * of a network.
+ * It is specifically designed for use with Containerlab to define a
+ * peer-to-peer network with
+ * a bootstrap server and a dynamic number of peer nodes. Additionally, it
+ * includes configurations
  * for monitoring services such as Prometheus, cAdvisor, and Grafana.
  */
 public class YMLGenerator {
@@ -14,6 +17,7 @@ public class YMLGenerator {
 
     /**
      * Generates the topology YAML file with the specified number of peer nodes.
+     * 
      * @param numberOfPeers The number of peer nodes to include in the topology.
      */
     public void generateTopologyFile(int numberOfPeers) {
@@ -21,7 +25,7 @@ public class YMLGenerator {
             // Define the network name
             fw.write("name: my-topology\n\n");
             fw.write("topology:\n");
-            
+
             // Bootstrap server configuration
             fw.write("  nodes:\n");
             fw.write("    bootstrapserver:\n");
@@ -32,7 +36,7 @@ public class YMLGenerator {
             fw.write("      exec:\n");
             fw.write("        - sleep 5\n");
             fw.write("      cmd: \"java -cp /app BootstrapServer\"\n\n");
-            
+
             // Generate peer node configurations
             for (int i = 1; i <= numberOfPeers; i++) {
                 fw.write("    peer" + i + ":\n");
@@ -40,14 +44,14 @@ public class YMLGenerator {
                 fw.write("      image: image-peer\n");
                 fw.write("      cmd: \"java -cp /app Peer\"\n\n");
             }
-            
-            // Monitoring services configurations
+
             // Prometheus configuration
             fw.write("    prometheus:\n");
             fw.write("      kind: linux\n");
             fw.write("      image: image-prometheus\n");
             fw.write("      binds:\n");
-            fw.write("        - /home/ozcankaraca/Desktop/p2p-bootstrapserver/prometheus.yml:/etc/prometheus/prometheus.yml\n");
+            fw.write(
+                    "        - /home/ozcankaraca/Desktop/p2p-bootstrapserver/prometheus.yml:/etc/prometheus/prometheus.yml\n");
             fw.write("      ports:\n");
             fw.write("        - \"9090:9090\"\n\n");
 
@@ -70,6 +74,13 @@ public class YMLGenerator {
             fw.write("      ports:\n");
             fw.write("        - \"3000:3000\"\n\n");
 
+            // Node Exporter configuration
+            fw.write("    nodeexporter:\n");
+            fw.write("      kind: linux\n");
+            fw.write("      image: image-nodeexporter\n");
+            fw.write("      ports:\n");
+            fw.write("        - \"9100:9100\"\n\n");
+
             // Define links between bootstrap server and peer nodes
             fw.write("  links:\n");
             for (int i = 1; i <= numberOfPeers; i++) {
@@ -86,6 +97,6 @@ public class YMLGenerator {
     public static void main(String[] args) {
         YMLGenerator generator = new YMLGenerator();
         // Pass the number of peers you want in the topology
-        generator.generateTopologyFile(200);
+        generator.generateTopologyFile(5);
     }
 }
