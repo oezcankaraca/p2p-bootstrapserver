@@ -1,2 +1,11 @@
 FROM grafana/grafana:8.1.5
+
+# Installieren Sie notwendige Pakete
+USER root
+RUN apk update && apk add --no-cache iftop
+
+# Setzen Sie den User wieder auf den Standard für Grafana, falls notwendig
+USER grafana
+
 # Weitere spezifische Anpassungen für Grafana...
+

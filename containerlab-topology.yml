@@ -6,6 +6,9 @@ topology:
     bootstrapserver:
       kind: linux
       image: image-bootstrapserver
+      labels:
+        role: sender
+        group: server
       binds:
         - /home/ozcankaraca/Desktop/p2p-bootstrapserver/mydocument.pdf:/app/mydocument.pdf
       exec:
@@ -15,31 +18,50 @@ topology:
     peer1:
       kind: linux
       image: image-peer
+      labels:
+        role: receiver
+        group: peer
       cmd: "java -cp /app Peer"
 
     peer2:
       kind: linux
       image: image-peer
+      labels:
+        role: receiver
+        group: peer
       cmd: "java -cp /app Peer"
 
     peer3:
       kind: linux
       image: image-peer
+      labels:
+        role: receiver
+        group: peer
       cmd: "java -cp /app Peer"
 
     peer4:
       kind: linux
       image: image-peer
+      labels:
+        role: receiver
+        group: peer
       cmd: "java -cp /app Peer"
 
     peer5:
       kind: linux
       image: image-peer
+      labels:
+        role: receiver
+        group: peer
       cmd: "java -cp /app Peer"
 
     prometheus:
       kind: linux
       image: image-prometheus
+      mgmt-ipv4: 172.20.20.100
+      labels:
+        role: visualisierung
+        group: monitoring
       binds:
         - /home/ozcankaraca/Desktop/p2p-bootstrapserver/prometheus.yml:/etc/prometheus/prometheus.yml
       ports:
@@ -48,6 +70,10 @@ topology:
     cadvisor:
       kind: linux
       image: image-cadvisor
+      mgmt-ipv4: 172.20.20.101
+      labels:
+        role: visualisierung
+        group: monitoring
       binds:
         - /:/rootfs:ro
         - /var/run:/var/run:ro
@@ -55,16 +81,26 @@ topology:
         - /var/snap/docker/common/var-lib-docker/:/var/lib/docker:ro
       ports:
         - "8080:8080"
+      env:
+        PARTICIPATION_DURATION: 30
 
     grafana:
       kind: linux
       image: image-grafana
+      mgmt-ipv4: 172.20.20.102
+      labels:
+        role: visualisierung
+        group: monitoring
       ports:
         - "3000:3000"
 
     nodeexporter:
       kind: linux
       image: image-nodeexporter
+      mgmt-ipv4: 172.20.20.103
+      labels:
+        role: visualisierung
+        group: monitoring
       ports:
         - "9100:9100"
 
