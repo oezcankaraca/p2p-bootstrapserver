@@ -21,7 +21,17 @@ topology:
       labels:
         role: receiver
         group: peer
+      binds:
+        - /home/ozcankaraca/Desktop/p2p-bootstrapserver/entrypoint.sh:/app/entrypoint.sh 
       cmd: "java -cp /app Peer"
+      env:
+        PARTICIPATION_DURATION: 50
+        DISCONNECT_FREQUENCY: 10
+        RECONNECT_FREQUENCY: 15
+      exec:
+        - sleep 5
+        - chmod +x /app/entrypoint.sh
+      entrypoint: /bin/sh /app/entrypoint.sh
 
     peer2:
       kind: linux
