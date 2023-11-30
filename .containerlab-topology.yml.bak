@@ -22,14 +22,16 @@ topology:
         role: receiver
         group: peer
       binds:
-        - /home/ozcankaraca/Desktop/p2p-bootstrapserver/entrypoint.sh:/app/entrypoint.sh 
+        - /home/ozcankaraca/Desktop/p2p-bootstrapserver/participation-behavior.sh:/app/participation-behavior.sh
       cmd: "java -cp /app Peer"
       env:
         PARTICIPATION_DURATION: 50
-      exec:
-        - sleep 5
-        - chmod +x /app/entrypoint.sh
-      entrypoint: /bin/sh /app/entrypoint.sh
+        DISCONNECT_FREQUENCY: 10
+        RECONNECT_FREQUENCY: 15
+      #exec:
+        #- sleep 5
+        #- chmod +x /app/participation-behavior.sh
+      #entrypoint: /bin/sh /app/participation-behavior.sh
 
     peer2:
       kind: linux
@@ -37,7 +39,17 @@ topology:
       labels:
         role: receiver
         group: peer
+      binds:
+        - /home/ozcankaraca/Desktop/p2p-bootstrapserver/participation-behavior.sh:/app/participation-behavior.sh
       cmd: "java -cp /app Peer"
+      env:
+        PARTICIPATION_DURATION: 50
+        DISCONNECT_FREQUENCY: 10
+        RECONNECT_FREQUENCY: 15
+      #exec:
+        #- sleep 5
+        #- chmod +x /app/participation-behavior.sh
+      #entrypoint: /bin/sh /app/participation-behavior.sh
 
     peer3:
       kind: linux
@@ -45,7 +57,17 @@ topology:
       labels:
         role: receiver
         group: peer
+      binds:
+        - /home/ozcankaraca/Desktop/p2p-bootstrapserver/participation-behavior.sh:/app/participation-behavior.sh
       cmd: "java -cp /app Peer"
+      env:
+        PARTICIPATION_DURATION: 50
+        DISCONNECT_FREQUENCY: 10
+        RECONNECT_FREQUENCY: 15
+      #exec:
+        #- sleep 5
+        #- chmod +x /app/participation-behavior.sh
+      #entrypoint: /bin/sh /app/participation-behavior.sh
 
     peer4:
       kind: linux
@@ -53,7 +75,17 @@ topology:
       labels:
         role: receiver
         group: peer
+      binds:
+        - /home/ozcankaraca/Desktop/p2p-bootstrapserver/participation-behavior.sh:/app/participation-behavior.sh
       cmd: "java -cp /app Peer"
+      env:
+        PARTICIPATION_DURATION: 50
+        DISCONNECT_FREQUENCY: 10
+        RECONNECT_FREQUENCY: 15
+      #exec:
+        #- sleep 5
+        #- chmod +x /app/participation-behavior.sh
+      #entrypoint: /bin/sh /app/participation-behavior.sh
 
     peer5:
       kind: linux
@@ -61,7 +93,59 @@ topology:
       labels:
         role: receiver
         group: peer
+      binds:
+        - /home/ozcankaraca/Desktop/p2p-bootstrapserver/participation-behavior.sh:/app/participation-behavior.sh
       cmd: "java -cp /app Peer"
+      env:
+        PARTICIPATION_DURATION: 50
+        DISCONNECT_FREQUENCY: 10
+        RECONNECT_FREQUENCY: 15
+      #exec:
+        #- sleep 5
+        #- chmod +x /app/participation-behavior.sh
+      #entrypoint: /bin/sh /app/participation-behavior.sh
+
+    superPeer1:
+      kind: linux
+      image: image-peer
+      labels:
+        role: receiver
+        group: superPeer
+      binds:
+        - /home/ozcankaraca/Desktop/p2p-bootstrapserver/connection-properties.sh:/app/connection-properties.sh
+      cmd: "java -cp /app Peer"
+      #exec:
+        #- sleep 5
+        #- chmod +x /app/connection-properties.sh
+      #entrypoint: /bin/sh /app/connection-properties.sh
+
+    superPeer2:
+      kind: linux
+      image: image-peer
+      labels:
+        role: receiver
+        group: superPeer
+      binds:
+        - /home/ozcankaraca/Desktop/p2p-bootstrapserver/connection-properties.sh:/app/connection-properties.sh
+      cmd: "java -cp /app Peer"
+      #exec:
+        #- sleep 5
+        #- chmod +x /app/connection-properties.sh
+      #entrypoint: /bin/sh /app/connection-properties.sh
+
+    superPeer3:
+      kind: linux
+      image: image-peer
+      labels:
+        role: receiver
+        group: superPeer
+      binds:
+        - /home/ozcankaraca/Desktop/p2p-bootstrapserver/connection-properties.sh:/app/connection-properties.sh
+      cmd: "java -cp /app Peer"
+      #exec:
+        #- sleep 5
+        #- chmod +x /app/connection-properties.sh
+      #entrypoint: /bin/sh /app/connection-properties.sh
 
     prometheus:
       kind: linux
@@ -89,9 +173,6 @@ topology:
         - /var/snap/docker/common/var-lib-docker/:/var/lib/docker:ro
       ports:
         - "8080:8080"
-      env:
-        PARTICIPATION_DURATION: 30
-
     grafana:
       kind: linux
       image: image-grafana

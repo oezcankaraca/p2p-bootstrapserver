@@ -20,15 +20,17 @@ public class YMLGenerator {
      * 
      * @param numberOfPeers The number of peer nodes to include in the topology.
      */
-    public void generateTopologyFile(int numberOfPeers) {
+    public void generateTopologyFile(int numberOfPeers, int numberOfSuperPeers) {
         try (FileWriter fw = new FileWriter(CONTAINERLAB_TOPOLOGY_DIR)) {
-            // Define the network name
+            // Define the network name and prefix
             fw.write("name: topology\n");
             fw.write("prefix: my-p2p\n\n");
             fw.write("topology:\n");
 
-            // Bootstrap server configuration
+            // Nodes configuration
             fw.write("  nodes:\n");
+
+            // Bootstrap server configuration
             fw.write("    bootstrapserver:\n");
             fw.write("      kind: linux\n");
             fw.write("      image: image-bootstrapserver\n");
@@ -41,7 +43,7 @@ public class YMLGenerator {
             fw.write("        - sleep 5\n");
             fw.write("      cmd: \"java -cp /app BootstrapServer\"\n\n");
 
-            // Generate peer node configurations
+            // Peer nodes configuration
             for (int i = 1; i <= numberOfPeers; i++) {
                 fw.write("    peer" + i + ":\n");
                 fw.write("      kind: linux\n");
@@ -49,7 +51,36 @@ public class YMLGenerator {
                 fw.write("      labels:\n");
                 fw.write("        role: receiver\n");
                 fw.write("        group: peer\n");
-                fw.write("      cmd: \"java -cp /app Peer\"\n\n");
+                fw.write("      binds:\n");
+                fw.write(
+                        "        - /home/ozcankaraca/Desktop/p2p-bootstrapserver/participation-behavior.sh:/app/participation-behavior.sh\n");
+                fw.write("      cmd: \"java -cp /app Peer\"\n");
+                fw.write("      env:\n");
+                fw.write("        PARTICIPATION_DURATION: 50\n");
+                fw.write("        DISCONNECT_FREQUENCY: 10\n");
+                fw.write("        RECONNECT_FREQUENCY: 15\n");
+                fw.write("      #exec:\n");
+                fw.write("        #- sleep 5\n");
+                fw.write("        #- chmod +x /app/participation-behavior.sh\n");
+                fw.write("      #entrypoint: /bin/sh /app/participation-behavior.sh\n\n");
+            }
+
+            // SuperPeer nodes configuration
+            for (int j = 1; j <= numberOfSuperPeers; j++) {
+                fw.write("    superPeer" + j + ":\n");
+                fw.write("      kind: linux\n");
+                fw.write("      image: image-peer\n");
+                fw.write("      labels:\n");
+                fw.write("        role: receiver\n");
+                fw.write("        group: superPeer\n");
+                fw.write("      binds:\n");
+                fw.write(
+                        "        - /home/ozcankaraca/Desktop/p2p-bootstrapserver/connection-properties.sh:/app/connection-properties.sh\n");
+                fw.write("      cmd: \"java -cp /app Peer\"\n");
+                fw.write("      #exec:\n");
+                fw.write("        #- sleep 5\n");
+                fw.write("        #- chmod +x /app/connection-properties.sh\n");
+                fw.write("      #entrypoint: /bin/sh /app/connection-properties.sh\n\n");
             }
 
             // Prometheus configuration
@@ -81,10 +112,6 @@ public class YMLGenerator {
             fw.write("        - /var/snap/docker/common/var-lib-docker/:/var/lib/docker:ro\n");
             fw.write("      ports:\n");
             fw.write("        - \"8080:8080\"\n");
-            fw.write("      env:\n");
-            fw.write("        PARTICIPATION_DURATION: 30\n\n");
-            fw.write("        DISCONNECT_FREQUENCY: 10\n");
-            fw.write("        RECONNECT_FREQUENCY: 15\n\n");
 
             // Grafana configuration
             fw.write("    grafana:\n");
@@ -124,6 +151,6 @@ public class YMLGenerator {
     public static void main(String[] args) {
         YMLGenerator generator = new YMLGenerator();
         // Pass the number of peers you want in the topology
-        generator.generateTopologyFile(5);
+        generator.generateTopologyFile(5, 3);
     }
 }
